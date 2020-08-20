@@ -1,6 +1,7 @@
+const Users = require('../models/Users');
 const jwt = require('jsonwebtoken');
 
-module.exports = (req, res, next) => {
+module.exports = async (req, res, next) => {
     const bearerToken = req.header('Authorization');
 
     if (!bearerToken) {
@@ -9,11 +10,16 @@ module.exports = (req, res, next) => {
 
     try {
         const token = bearerToken.split(' ')[1];
-        const user = jwt.verify(token, process.env.SECRET)
+        const authUser = jwt.verify(token, process.env.SECRET);
+        const user = await Users.findById(authUser._id);
+        
+        if (!user) {
+            return res.status(401).json({ msg: 'El usuario no existe' });
+        }
+        
         req.user = user;
+        next();
     } catch (error) {
-        return res.status(401).json({ msg: 'Token no válido' });
+        res.status(401).json({ msg: 'Token no válido' });
     }
-
-    next();
 }

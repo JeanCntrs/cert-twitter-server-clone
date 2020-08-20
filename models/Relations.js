@@ -1,15 +1,16 @@
 const mongoose = require('mongoose');
 
-const tweetSchema = mongoose.Schema({
+const relationSchema = mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Users',
         required: true
     },
-    message: {
-        type: String,
+    userRelationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users',
         required: true
     }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Tweets', tweetSchema);
+module.exports = mongoose.model('Relations', relationSchema);

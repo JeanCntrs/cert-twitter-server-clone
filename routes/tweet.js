@@ -12,4 +12,9 @@ router.post('/tweet/create',
     tweetController.createTweet
 );
 
+router.delete('/tweet/:tweetId',
+    auth,
+    tweetController.deleteTweet
+);
+
 module.exports = router;

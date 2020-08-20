@@ -7,6 +7,7 @@ const morgan = require('morgan');
 // Routes
 const authRoutes = require('./routes/auth');
 const tweetRoutes = require('./routes/tweet');
+const relationRoutes = require('./routes/relation');
 const fileRoutes = require('./routes/file');
 
 // App and port
@@ -27,6 +28,7 @@ app.use(express.static('uploads'));
 
 app.use('/api', authRoutes);
 app.use('/api', tweetRoutes);
+app.use('/api', relationRoutes);
 app.use('/api', fileRoutes);
 
 app.listen(port, '0.0.0.0', () => {
