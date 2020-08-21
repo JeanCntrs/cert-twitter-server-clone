@@ -29,23 +29,28 @@ const userSchema = mongoose.Schema({
     },
     avatar: {
         type: String,
-        trim: true
+        trim: true,
+        default: ''
     },
     banner: {
         type: String,
-        trim: true
+        trim: true,
+        default: ''
     },
     biography: {
         type: String,
-        trim: true
+        trim: true,
+        default: ''
     },
     location: {
         type: String,
-        trim: true
+        trim: true,
+        default: ''
     },
     website: {
         type: String,
-        trim: true
+        trim: true,
+        default: ''
     }
 }, { timestamps: true });
 

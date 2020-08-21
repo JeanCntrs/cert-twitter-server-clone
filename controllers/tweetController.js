@@ -40,6 +40,6 @@ exports.deleteTweet = (req, res) => {
             }
 
             res.sendStatus(200);
-        })
+        });
     });
 }

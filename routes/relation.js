@@ -9,6 +9,11 @@ router.post('/relation/create/:userRelationId',
     relationController.createRelation
 );
 
+router.delete('/relation/:userRelationId',
+    auth,
+    relationController.deleteRelation
+);
+
 router.param('userRelationId', userById);
 
 module.exports = router;

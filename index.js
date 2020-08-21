@@ -6,6 +6,7 @@ const morgan = require('morgan');
 
 // Routes
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/user');
 const tweetRoutes = require('./routes/tweet');
 const relationRoutes = require('./routes/relation');
 const fileRoutes = require('./routes/file');
@@ -27,6 +28,7 @@ app.use(bodyParser.json());
 app.use(express.static('uploads'));
 
 app.use('/api', authRoutes);
+app.use('/api', userRoutes);
 app.use('/api', tweetRoutes);
 app.use('/api', relationRoutes);
 app.use('/api', fileRoutes);
