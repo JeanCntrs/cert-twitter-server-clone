@@ -1,5 +1,6 @@
 const Users = require('../models/Users');
 const multer = require('multer');
+const fs = require('fs');
 
 exports.uploadAvatar = (req, res) => {
     const storageConfig = multer.diskStorage({
@@ -82,5 +83,69 @@ exports.uploadBanner = (req, res) => {
         await user.save();
 
         res.sendStatus(201);
+    });
+}
+
+exports.getAvatar = (req, res) => {
+    if (!req.query.id) {
+        return res.status(400).json({ msg: 'Parámetro ID no válido' });
+    }
+
+    Users.findById(req.query.id, (err, user) => {
+        if (err) {
+            return res.status(400).json({ msg: 'ID no válido.' });
+        }
+
+        if (!user) {
+            return res.status(400).json({ msg: 'Usuario no encontrada.' });
+        }
+
+        if (!user.avatar) {
+            return res.status(400).json({ msg: 'Avatar no asignado.' });
+        }
+
+        const avatarPath = `${__dirname}/../uploads/avatars/${user.avatar}`;
+
+        fs.stat(avatarPath, (err, stat) => {
+            if (err) {
+                return res.status(400).json({ msg: 'Avatar no encontrado.' });
+            }
+
+            const avatar = fs.readFileSync(avatarPath);
+            res.contentLength = stat.size;
+            res.end(avatar, 'binary');
+        });
+    });
+}
+
+exports.getBanner = (req, res) => {
+    if (!req.query.id) {
+        return res.status(400).json({ msg: 'Parámetro ID no válido' });
+    }
+
+    Users.findById(req.query.id, (err, user) => {
+        if (err) {
+            return res.status(400).json({ msg: 'ID no válido.' });
+        }
+
+        if (!user) {
+            return res.status(400).json({ msg: 'Usuario no encontrada.' });
+        }
+
+        if (!user.banner) {
+            return res.status(400).json({ msg: 'Banner no asignado.' });
+        }
+
+        const bannerPath = `${__dirname}/../uploads/banners/${user.banner}`;
+
+        fs.stat(bannerPath, (err, stat) => {
+            if (err) {
+                return res.status(400).json({ msg: 'Banner no encontrado.' });
+            }
+
+            const banner = fs.readFileSync(bannerPath);
+            res.contentLength = stat.size;
+            res.end(banner, 'binary');
+        });
     });
 }

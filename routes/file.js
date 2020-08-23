@@ -13,4 +13,12 @@ router.post('/file/banner/upload',
     fileController.uploadBanner
 );
 
+router.get('/file/avatar',
+    fileController.getAvatar
+);
+
+router.get('/file/banner',
+    fileController.getBanner
+);
+
 module.exports = router;
