@@ -1,6 +1,109 @@
 const Tweets = require('../models/Tweets');
+const Relations = require('../models/Relations');
 const { validationResult } = require('express-validator');
 const { findById } = require('../models/Tweets');
+
+exports.readTweets = (req, res) => {
+    if (!req.query.id) {
+        return res.status(400).json({ msg: 'Parámetro ID no válido.' });
+    }
+
+    if (!req.query.page) {
+        return res.status(400).json({ msg: 'Parámetro página no válido.' });
+    }
+
+    if (!Number.isInteger(parseInt(req.query.page))) {
+        return res.status(400).json({ msg: 'Parámetro página debe ser un valor númerico.' });
+    }
+
+    if (parseInt(req.query.page) <= 0) {
+        return res.status(400).json({ msg: 'Parámetro página debe ser mayor a 0.' });
+    }
+
+    const page = parseInt(req.query.page);
+
+    Tweets.find({ userId: req.query.id })
+        .select('_id userId message createdAt')
+        .sort('-createdAt')
+        .skip((page - 1) * 3)
+        .limit(3)
+        .exec((err, tweets) => {
+            if (err) {
+                return res.status(400).json({ msg: 'ID no válido.' });
+            }
+
+            if (!tweets.length > 0) {
+                return res.status(400).json({ msg: 'Tweets no encontrados.' });
+            }
+
+            res.status(200).json(tweets);
+        });
+}
+
+exports.readTweetsFollowers = (req, res) => {
+    if (!req.query.page) {
+        return res.status(400).json({ msg: 'Parámetro página no válido.' });
+    }
+
+    if (!Number.isInteger(parseInt(req.query.page))) {
+        return res.status(400).json({ msg: 'Parámetro página debe ser un valor númerico.' });
+    }
+
+    if (parseInt(req.query.page) <= 0) {
+        return res.status(400).json({ msg: 'Parámetro página debe ser mayor a 0.' });
+    }
+
+    const page = parseInt(req.query.page);
+    const skip = (page - 1) * 3;
+
+    Relations.aggregate([
+        {
+            $match: {
+                userId: req.user._id
+            }
+        },
+        {
+            $lookup: {
+                from: 'tweets',
+                localField: 'userRelationId',
+                foreignField: 'userId',
+                as: 'tweets'
+            }
+        },
+        {
+            $project: {
+                createdAt: 0,
+                updatedAt: 0,
+                __v: 0,
+                tweets: {
+                    userId: 0,
+                    updatedAt: 0,
+                    __v: 0
+                }
+            }
+        },
+        {
+            $unwind: "$tweets"
+        },
+        {
+            $sort: {
+                'tweets.createdAt': - 1
+            }
+        },
+        {
+            $skip: skip
+        },
+        {
+            $limit: 3
+        }
+    ], (err, tweets) => {
+        if (err) {
+            return res.status(500).json({ msg: 'Se ha producido un error. Por favor, inténtelo más tarde.' });
+        }
+
+        res.status(200).json(tweets);
+    });
+}
 
 exports.createTweet = async (req, res) => {
     const errors = validationResult(req);
@@ -27,7 +130,7 @@ exports.deleteTweet = (req, res) => {
         }
 
         if (!tweet) {
-            return res.status(400).json({ msg: 'Tweet no existe.' });
+            return res.status(400).json({ msg: 'Tweet no encontrado.' });
         }
 
         if (String(req.user._id) !== String(tweet.userId)) {
