@@ -25,8 +25,8 @@ exports.listUser = (req, res) => {
             { surnames: { $regex: `.*${search}.*`, $options: 'i' } }
         ]
     })
-        .skip((page - 1) * 3)
-        .limit(3)
+        .skip((page - 1) * 10)
+        .limit(10)
         .exec(async (err, users) => {
             if (err) {
                 return res.status(500).json({ msg: 'Se ha producido un error. Por favor, inténtelo más tarde.' });
@@ -92,7 +92,10 @@ exports.readProfile = (req, res) => {
             birthdate: user.birthdate,
             email: user.email,
             avatar: user.avatar,
-            banner: user.banner
+            banner: user.banner,
+            biography: user.biography,
+            location: user.location,
+            website: user.website
         }
 
         res.status(200).json(profile);

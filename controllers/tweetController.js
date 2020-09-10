@@ -24,18 +24,19 @@ exports.readTweets = (req, res) => {
 
     Tweets.find({ userId: req.query.id })
         .select('_id userId message createdAt')
+        .populate('userId', 'names surnames avatar')
         .sort('-createdAt')
-        .skip((page - 1) * 3)
-        .limit(3)
+        .skip((page - 1) * 10)
+        .limit(10)
         .exec((err, tweets) => {
             if (err) {
                 return res.status(400).json({ msg: 'ID no válido.' });
             }
 
             if (!tweets.length > 0) {
-                return res.status(400).json({ msg: 'Tweets no encontrados.' });
+                return res.status(200).json([]);
             }
-
+            
             res.status(200).json(tweets);
         });
 }
@@ -54,7 +55,7 @@ exports.readTweetsFollowers = (req, res) => {
     }
 
     const page = parseInt(req.query.page);
-    const skip = (page - 1) * 3;
+    const skip = (page - 1) * 10;
 
     Relations.aggregate([
         {
@@ -71,6 +72,20 @@ exports.readTweetsFollowers = (req, res) => {
             }
         },
         {
+            $unwind: "$tweets"
+        },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'userRelationId',
+                foreignField: '_id',
+                as: 'users'
+            }
+        },
+        {
+            $unwind: "$users"
+        },
+        {
             $project: {
                 createdAt: 0,
                 updatedAt: 0,
@@ -79,11 +94,21 @@ exports.readTweetsFollowers = (req, res) => {
                     userId: 0,
                     updatedAt: 0,
                     __v: 0
+                },
+                users: {
+                    _id: false,
+                    birthdate: false,
+                    banner: false,
+                    biography: false,
+                    location: false,
+                    website: false,
+                    email: false,
+                    password: false,
+                    createdAt: false,
+                    updatedAt: false,
+                    __v: false
                 }
             }
-        },
-        {
-            $unwind: "$tweets"
         },
         {
             $sort: {
@@ -94,7 +119,7 @@ exports.readTweetsFollowers = (req, res) => {
             $skip: skip
         },
         {
-            $limit: 3
+            $limit: 10
         }
     ], (err, tweets) => {
         if (err) {

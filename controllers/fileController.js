@@ -97,7 +97,7 @@ exports.getAvatar = (req, res) => {
         }
 
         if (!user) {
-            return res.status(400).json({ msg: 'Usuario no encontrada.' });
+            return res.status(400).json({ msg: 'Usuario no encontrado.' });
         }
 
         if (!user.avatar) {
@@ -129,7 +129,7 @@ exports.getBanner = (req, res) => {
         }
 
         if (!user) {
-            return res.status(400).json({ msg: 'Usuario no encontrada.' });
+            return res.status(400).json({ msg: 'Usuario no encontrado.' });
         }
 
         if (!user.banner) {
